@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>너의 점수는 어디까지일까</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef5ff;--card:#fff;--ink:#0b1f44;--sub:#4a5f85;--blue:#1673ff;--cy:#00c2ff;--line:#bcd4ff;--ok:#12b76a;--bad:#f04438;--code:#0b1f44;--codeink:#9be7ff;--grid:rgba(22,115,255,.09);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#061230;--card:#0c1d45;--ink:#e8f1ff;--sub:#9db6e6;--line:#1f3d82;--code:#030a1c;--grid:rgba(0,194,255,.1)}}
+:root[data-theme="dark"]{--bg:#061230;--card:#0c1d45;--ink:#e8f1ff;--sub:#9db6e6;--line:#1f3d82;--code:#030a1c;--grid:rgba(0,194,255,.1)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',sans-serif;
+background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:36px 36px;overflow-x:hidden}
+.o{font-family:'Orbitron','Noto Sans KR',sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+.card{background:var(--card);border:2px solid var(--blue);border-radius:18px;padding:24px;box-shadow:0 0 0 4px rgba(22,115,255,.12),0 10px 30px rgba(22,115,255,.22);position:relative}
+.hidden{display:none!important}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-family:'Orbitron',sans-serif;font-weight:700;font-size:14px;padding:6px 12px;border-radius:999px;border:2px solid var(--blue);background:var(--card)}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cy));transition:width .5s}
+h1{font-family:'Orbitron','Noto Sans KR',sans-serif;font-weight:900;margin:8px 0;font-size:clamp(26px,6vw,46px);line-height:1.25;background:linear-gradient(90deg,var(--blue),var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center}
+.center{text-align:center}
+.sub{color:var(--sub);font-size:17px;line-height:1.7}
+.hero{font-size:64px;animation:float 2.4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-10px)}}
+.blink{animation:blink 1s steps(2) infinite;font-family:'Orbitron',sans-serif;font-weight:700;color:var(--blue);letter-spacing:3px}
+@keyframes blink{50%{opacity:0}}
+.btn{font-family:'Orbitron','Noto Sans KR',sans-serif;font-weight:700;font-size:18px;border:0;cursor:pointer;color:#fff;background:linear-gradient(180deg,var(--cy),var(--blue));padding:14px 34px;border-radius:12px;box-shadow:0 6px 0 #0b4fb8;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #0b4fb8}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.tag{display:inline-block;font-family:'Orbitron','Noto Sans KR',sans-serif;font-size:12px;font-weight:700;color:#fff;background:var(--blue);padding:4px 10px;border-radius:6px;margin-bottom:10px}
+.q{font-size:clamp(17px,2.6vw,21px);font-weight:700;line-height:1.6;margin:0 0 14px}
+pre{background:var(--code);color:var(--codeink);border-radius:12px;padding:16px;overflow-x:auto;font:15px/1.6 Consolas,Menlo,monospace;margin:0 0 16px;border-left:5px solid var(--cy)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.opt{font:700 18px 'Orbitron','Noto Sans KR',sans-serif;padding:14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;transition:.15s}
+.opt:hover:not(:disabled){border-color:var(--blue);transform:translateY(-2px)}
+.opt.sel{border-color:var(--blue);background:var(--blue);color:#fff}
+.opt.tried{opacity:.4;text-decoration:line-through;cursor:not-allowed}
+input[type=text]{width:100%;font:700 18px 'Noto Sans KR',sans-serif;padding:14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin-bottom:16px}
+input[type=text]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(22,115,255,.2)}
+.fb{font-family:'Orbitron','Noto Sans KR',sans-serif;font-weight:900;font-size:24px;text-align:center;padding:14px;border-radius:12px;margin-bottom:14px}
+.fb.ok{background:rgba(18,183,106,.14);color:var(--ok);animation:pop .5s}
+.fb.no{background:rgba(240,68,56,.13);color:var(--bad);animation:shake .5s}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.score-pop{animation:pop .5s}
+.timer{display:flex;align-items:center;gap:10px;margin-bottom:14px}.timer .tb{flex:1;height:14px;border-radius:99px;background:var(--line);overflow:hidden}.timer .tb i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ok),var(--cy));transition:width .25s linear}.timer.low .tb i{background:var(--bad)}.timer.low .chip{border-color:var(--bad);color:var(--bad);animation:blink .6s steps(2) infinite}
+.big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(54px,12vw,96px);color:var(--blue);text-shadow:0 0 18px rgba(0,194,255,.45);margin:0}
+.grade{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:40px;color:#fff;background:linear-gradient(135deg,var(--cy),var(--blue));border-radius:14px;padding:6px 24px;margin:8px 0}
+.stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:14px 0}
+.rv{border:2px solid var(--line);border-radius:12px;padding:14px;margin:12px 0;text-align:left;background:var(--card)}
+.rv.bad{border-color:var(--bad)}.rv.good{border-color:var(--ok)}
+.rv b.t{font-family:'Orbitron','Noto Sans KR',sans-serif}
+.rv p{margin:6px 0;line-height:1.6}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:-1;font-size:22px;opacity:.5}
+.stars span{position:absolute;animation:float 3s ease-in-out infinite}
+.pad{display:flex;justify-content:center;gap:10px;font-size:30px;margin-top:18px;flex-wrap:wrap}
+.wrap.has-calc{max-width:1160px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.calc{padding:18px;position:sticky;top:16px}
+.calc h3{margin:0 0 10px;font-family:'Orbitron','Noto Sans KR',sans-serif;font-size:15px;color:var(--blue)}
+.cd{background:var(--code);color:var(--codeink);border-radius:10px;padding:10px 14px;text-align:right;font-family:'Orbitron',sans-serif;margin-bottom:12px;overflow:hidden}
+.cd small{display:block;min-height:18px;font-size:13px;opacity:.7;white-space:nowrap;overflow:hidden}
+.cd b{display:block;font-size:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ck button{font:700 20px 'Orbitron','Noto Sans KR',sans-serif;padding:14px 0;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer}
+.ck button:hover{border-color:var(--blue)}.ck button:active{transform:translateY(2px)}
+.ck .op{background:rgba(22,115,255,.12);color:var(--blue)}.ck .cl{color:var(--bad)}
+.ck .eq{grid-row:span 2;color:#fff;background:linear-gradient(180deg,var(--cy),var(--blue));border-color:var(--blue)}
+.ck .z{grid-column:span 2}
+.ck button.hit{background:var(--blue);color:#fff;transform:translateY(2px)}
+@keyframes quake{10%{transform:translate(-9px,5px)}30%{transform:translate(10px,-7px)}50%{transform:translate(-7px,-4px)}70%{transform:translate(6px,6px)}90%{transform:translate(-3px,2px)}}
+.quake{animation:quake .5s}
+.reform{animation:pop .55s}
+@media (max-width:900px){.wrap.has-calc{display:block;max-width:860px}.calc{position:static;margin-top:20px}}
+</style>
+</head>
+<body>
+<div class="stars"><span style="left:6%;top:12%">🕹️</span><span style="left:90%;top:18%;animation-delay:.6s">👾</span><span style="left:12%;top:80%;animation-delay:1.2s">🎮</span><span style="left:86%;top:76%;animation-delay:.3s">⭐</span><span style="left:48%;top:92%;animation-delay:1.8s">🪙</span></div>
+<div class="wrap">
+
+<section id="start" class="card center">
+  <div class="hero">🕹️</div>
+  <div class="blink">INSERT COIN</div>
+  <h1>너의 점수는 어디까지일까</h1>
+  <p class="sub">5개의 문제를 풀어서<br>자신의 점수가 어디까지 가는지 성찰하는 앱입니다.<br>파이썬 문법과 개념, 오락실에서 도전해 보세요!</p>
+  <p class="sub">👾 5 STAGE · 한 번 지나간 문제는 되돌아갈 수 없어요<br>⏱ 문제마다 제한시간 40초 · 오답을 내면 그 문제의 남은 시간이 3초씩(3·5번은 15초씩) 줄어요 (다시 도전 가능)<br>🧮 STAGE 4·5에서는 계산기를 쓸 수 있어요</p>
+  <button class="btn" id="startBtn">▶ GAME START</button>
+  <div class="pad"><span>🎮</span><span>👾</span><span>🪙</span><span>🏆</span></div>
+</section>
+
+<section id="quiz" class="card hidden">
+  <div class="hud">
+    <span class="chip" id="stage">STAGE 1 / 5</span>
+    <span class="chip" id="score">SCORE 000</span>
+  </div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="timer hidden" id="timer"><span class="chip" id="tnum">⏱ 40</span><div class="tb"><i id="tfill"></i></div><span id="tpen" style="font-size:13px;font-weight:700;color:var(--bad);white-space:nowrap"></span></div>
+  <span class="tag" id="tag"></span>
+  <p class="q" id="qtext"></p>
+  <pre id="qcode"></pre>
+  <div id="ans"></div>
+  <div id="fb" class="fb hidden"></div>
+  <div class="center"><button class="btn" id="actBtn">정답 제출</button></div>
+</section>
+
+<aside id="calc" class="card calc hidden">
+  <h3>🧮 CALCULATOR</h3>
+  <div class="cd"><small id="cx"></small><b id="cv">0</b></div>
+  <div class="ck" id="ck"></div>
+  <p class="sub" style="font-size:12px;margin:10px 0 0">⌨ 키보드 입력 가능 · 숫자 + - * / · Enter(=) · Backspace(⌫) · Esc(C)</p>
+</aside>
+
+<section id="result" class="card hidden center">
+  <div class="blink">GAME OVER</div>
+  <p class="sub" style="margin:4px 0">FINAL SCORE</p>
+  <p class="big" id="rScore">0</p>
+  <div class="grade" id="rGrade">S</div>
+  <p class="q" id="rMsg"></p>
+  <div class="stats"><span class="chip" id="rOk"></span><span class="chip" id="rNo"></span></div>
+  <div id="review"></div>
+  <p style="margin-top:20px"><button class="btn" id="retryBtn">↻ CONTINUE? 다시 도전</button></p>
+</section>
+
+</div>
+<script>
+const Q=[
+{tag:'코드 실행 결과 예측 · 직접 입력',kind:'input',
+ text:'전세계의 오락실을 탐방하기 위해 특수한 비밀번호를 찾아야한다 아래에 있는 코드의 답을 한다면 비밀번호가 보일 것이다',
+ code:"password = [0, 7, 0, 4, 3, 1, 2]\n\npassword.remove(3)\npassword.remove(1)\npassword.remove(2)\n\nprint(password)",
+ ph:'출력 결과를 입력하세요',ans:'[0,7,0,4]',
+ ok:v=>norm(v)==='[0,7,0,4]',
+ exp:'password 리스트 안에 들어가 있는 1,2,3이라는 숫자를 지웠기에 앞에 있는 0,7,0,4만이 출력되게 되어서 정답이 [0,7,0,4]이다'},
+{tag:'코드 실행 결과 예측 · 직접 입력',kind:'input',
+ text:'다음 코드로 출력되는것이 무엇인가요',
+ code:"name = '문준형'\nprint('저의 이름은' ,name,'입니다.')",
+ ph:'출력 결과를 입력하세요',ans:'저의 이름은 문준형 입니다.',
+ ok:v=>norm(v).replace(/\.$/,'')==='저의이름은문준형입니다',
+ exp:"name 이라는 변수 안에 들어있는건 문자열로 되어있는 '문준형' 이 들어가있어서 저렇게 출력됨"},
+{tag:'객관식 · 오답 시 -15초',kind:'choice',cut:15,
+ text:'score에 94점을 넣을것이다 그럼 print에서 어떠한 값이 나올지 알맞은 것을 구하시오',
+ code:"score=int(input('점수를 입력하세요: '))\n\nif score>=90:\n  print('A')\nelif score>=80:\n  print('B')\nelif score>=70:\n  print('C')\nelif score>=60:\n  print('D')\nelse:\n  print('E')",
+ opts:['A','B','C','D','E'],ans:'A',
+ exp:'94는 score 값에 들어갔을때 >=90이 맞기 때문에 바로 A라는 말이 프린트된다'},
+{tag:'직접 입력 · 계산기 사용 가능',kind:'input',calc:true,
+ text:'준형이가 게임에 현질한 금액이 prices 값에 들어있다 print 했을때 prices에 들어있는 값의 총합을 계산하시오',
+ code:"prices = [15000, 23000, 12000, 30000]\n\nprices.append(10090)\nprices.append(74030)\nprices.append(10245)\n\nprint(prices)",
+ ph:'총합을 입력하세요',ans:'174,365',
+ ok:v=>norm(v).replace(/[,원]/g,'')==='174365',
+ exp:'원래 있던 리스트에 추가되는 값을 종합하면 나오는 숫자가 정답이기 때문에'},
+{tag:'객관식 · 계산기 사용 가능 · 오답 시 -15초',kind:'choice',calc:true,cut:15,
+ text:'준형이는 명진이에게 RTX 5080을 4개 사주기로 했다 RTX가격은 330만원이다 준형이가 사주기 위해서 얼마를 내야하는지 고르시오',
+ code:"price = int(input('5080 가격:'))\ncount = int(input('주문 수량:'))\ntotal = 0\n\ndef calculate_total(price, count):\n  total = price * count\n  return total\n\ntotal = calculate_total(price, count)\n\nprint(f'총 금액: {total}만원')",
+ opts:['1230만원','1320만원','1420만원','1200만원'],ans:'1320만원',
+ exp:'5080의 가격은 330만원인데 4개를 사주기로 했으므로 330*4를 하게 되면 답이 1320만원이 나오기 때문이다'}
+];
+const norm=s=>s.replace(/\s+/g,'');
+const $=id=>document.getElementById(id);
+let i=0,score=0,picked=null,done=false,log=[],ac=null,tm=null;
+
+function ctx(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}return ac}
+function tone(type,f1,f2,t0,dur,vol){const a=ctx();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;
+ o.frequency.setValueAtTime(f1,a.currentTime+t0);o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+t0+dur);
+ g.gain.setValueAtTime(vol,a.currentTime+t0);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+t0+dur);
+ o.connect(g);g.connect(a.destination);o.start(a.currentTime+t0);o.stop(a.currentTime+t0+dur)}
+function sndOk(){tone('square',660,660,0,.1,.12);tone('square',990,990,.11,.2,.12)}
+function sndBoo(){tone('sawtooth',300,170,0,.45,.18);tone('sawtooth',260,110,.45,.7,.18);tone('sine',90,60,0,1.1,.2)}
+function sndEnd(){[523,659,784,1047].forEach((f,k)=>tone('square',f,f,k*.13,.18,.1))}
+
+let cA='0',cP=null,cO=null,cN=true,cE='';
+const ap=(a,o,b)=>{const r=o==='+'?a+b:o==='−'?a-b:o==='×'?a*b:(b===0?NaN:a/b);return Number.isFinite(r)?+r.toFixed(10):NaN};
+const disp=s=>{if(isNaN(+s))return s;const [a,b]=s.split('.');const n=a[0]==='-';const d=(n?a.slice(1):a).replace(/\B(?=(\d{3})+(?!\d))/g,',');return (n?'-':'')+d+(b!==undefined?'.'+b:'')};
+function calcPress(k){
+ if(k==='C'){cA='0';cP=null;cO=null;cN=true;cE=''}
+ else if(/\d/.test(k)){if(cN){cA=k;cN=false}else if(cA.replace(/[-.]/g,'').length<14)cA=cA==='0'?k:cA+k}
+ else if(k==='.'){if(cN){cA='0.';cN=false}else if(!cA.includes('.'))cA+='.'}
+ else if(k==='⌫'){if(!cN)cA=cA.length>1?cA.slice(0,-1):'0'}
+ else{
+  if(isNaN(+cA))cA='0';
+  if(k==='='){if(cO!==null){const r=ap(cP,cO,+cA);cE=disp(String(cP))+' '+cO+' '+disp(cA)+' =';cA=isNaN(r)?'Error':String(r);cP=null;cO=null;cN=true}}
+  else{
+   const t=cO!==null&&!cN?ap(cP,cO,+cA):null;
+   if(t!==null&&isNaN(t)){cA='Error';cP=null;cO=null;cN=true;cE=''}
+   else{cP=t!==null?t:+cA;cA=String(cP);cO=k;cN=true;cE=disp(String(cP))+' '+k}
+  }
+ }
+ $('cv').textContent=disp(cA);$('cx').textContent=cE}
+['C','⌫','÷','×','7','8','9','−','4','5','6','+','1','2','3','=','0','.'].forEach(k=>{
+ const b=document.createElement('button');b.textContent=k;
+ b.className=/[\d.]/.test(k)?'':k==='='?'eq':k==='C'?'cl':'op';
+ if(k==='0')b.classList.add('z');
+ b.onclick=()=>{calcPress(k);b.blur()};$('ck').appendChild(b)});
+const KM={'+':'+','-':'−','*':'×','x':'×','X':'×','/':'÷','=':'=','Enter':'=','Backspace':'⌫','Escape':'C','Delete':'C','c':'C','C':'C','.':'.'};
+document.addEventListener('keydown',e=>{
+ if($('calc').classList.contains('hidden')||e.ctrlKey||e.metaKey||e.altKey)return;
+ const t=e.target,tag=t.tagName;
+ if(tag==='INPUT'||tag==='TEXTAREA')return;
+ const k=/^\d$/.test(e.key)?e.key:KM[e.key];
+ if(!k)return;
+ if(e.key==='Enter'&&tag==='BUTTON'&&!t.closest('#calc'))return;
+ e.preventDefault();calcPress(k);
+ const b=[...$('ck').children].find(x=>x.textContent===k);
+ if(b){b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),120)}
+});
+
+function show(id){['start','quiz','result'].forEach(s=>$(s).classList.toggle('hidden',s!==id));if(id!=='quiz'){$('calc').classList.add('hidden');document.querySelector('.wrap').classList.remove('has-calc')}window.scrollTo(0,0)}
+
+const BASE=40,CUT=3;
+let tEnd=0,tickFn=null,tries=0,lastTry='';
+function stopTimer(){clearInterval(tm);tm=null}
+function startTimer(sec){
+ const t=$('timer');t.classList.remove('hidden','low');
+ $('tpen').textContent='';tries=0;lastTry='';
+ tEnd=Date.now()+sec*1000;
+ const tick=tickFn=()=>{const left=Math.max(0,tEnd-Date.now());
+  $('tnum').textContent='⏱ '+Math.ceil(left/1000);
+  $('tfill').style.width=(left/(sec*1000)*100)+'%';
+  t.classList.toggle('low',left<=10000);
+  if(left<=0){stopTimer();if(!done)submit(true)}};
+ tick();tm=setInterval(tick,200)}
+
+function load(){
+ const q=Q[i];done=false;picked=null;stopTimer();$('timer').classList.add('hidden');
+ const hc=!!q.calc;$('calc').classList.toggle('hidden',!hc);document.querySelector('.wrap').classList.toggle('has-calc',hc);if(hc){calcPress('C');if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}
+ $('stage').textContent=`STAGE ${i+1} / ${Q.length}`;
+ $('prog').style.width=(i/Q.length*100)+'%';
+ $('tag').textContent=q.tag;$('qtext').textContent=`Q${i+1}. `+q.text;$('qcode').textContent=q.code;
+ $('fb').className='fb hidden';
+ const box=$('ans');box.innerHTML='';
+ if(q.kind==='choice'){
+  const w=document.createElement('div');w.className='opts';
+  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;
+   b.onclick=()=>{if(done)return;picked=o;[...w.children].forEach(c=>c.classList.toggle('sel',c===b));$('actBtn').disabled=false};w.appendChild(b)});
+  box.appendChild(w);$('actBtn').disabled=true;
+ }else{
+  const inp=document.createElement('input');inp.type='text';inp.id='inp';inp.placeholder=q.ph;inp.autocomplete='off';
+  inp.oninput=()=>{$('actBtn').disabled=!inp.value.trim()};
+  inp.onkeydown=e=>{if(e.key==='Enter'&&!$('actBtn').disabled)$('actBtn').click()};
+  box.appendChild(inp);$('actBtn').disabled=true;if(!q.calc)setTimeout(()=>inp.focus(),50);
+ }
+ $('actBtn').textContent='정답 제출';
+ startTimer(BASE);
+}
+
+function sndBoom(){const a=ctx();if(!a)return;const n=Math.floor(a.sampleRate*.6),buf=a.createBuffer(1,n,a.sampleRate),d=buf.getChannelData(0);for(let k=0;k<n;k++)d[k]=(Math.random()*2-1)*Math.pow(1-k/n,2);const s=a.createBufferSource();s.buffer=buf;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(3000,a.currentTime);f.frequency.exponentialRampToValueAtTime(200,a.currentTime+.5);const g=a.createGain();g.gain.value=.7;s.connect(f);f.connect(g);g.connect(a.destination);s.start();tone('sine',120,35,0,.5,.5)}
+
+function boom(){
+ sndBoom();
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const card=$('quiz'),r=card.getBoundingClientRect(),W=r.width,H=r.height,cx=r.left+W/2,cy=r.top+H/2;
+ const rnd=(a,b)=>a+Math.random()*(b-a);
+ const fly=(el,dx,dy,rot,dur)=>{el.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1,easing:'cubic-bezier(.1,.8,.3,1)'},{offset:.4,transform:`translate(${dx}px,${dy}px) rotate(${rot}deg)`,opacity:1,easing:'cubic-bezier(.5,0,.9,.5)'},{transform:`translate(${dx*1.25}px,${dy+rnd(500,900)}px) rotate(${rot*1.6}deg)`,opacity:0}],{duration:dur,fill:'forwards'}).onfinish=()=>el.remove()};
+ const add=(css)=>{const e=document.createElement('div');Object.assign(e.style,{position:'fixed',pointerEvents:'none'},css);document.body.appendChild(e);return e};
+ const C=7,R=5,P=[],tris=[];
+ for(let y=0;y<=R;y++){P[y]=[];for(let x=0;x<=C;x++)P[y][x]=[x/C*100+(x>0&&x<C?rnd(-4,4):0),y/R*100+(y>0&&y<R?rnd(-5,5):0)]}
+ for(let y=0;y<R;y++)for(let x=0;x<C;x++){const a=P[y][x],b=P[y][x+1],c=P[y+1][x+1],d=P[y+1][x];(x+y)%2?tris.push([a,b,c],[a,c,d]):tris.push([a,b,d],[b,c,d])}
+ tris.forEach(t=>{
+  const el=card.cloneNode(true);el.removeAttribute('id');el.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+  const mx=(t[0][0]+t[1][0]+t[2][0])/3,my=(t[0][1]+t[1][1]+t[2][1])/3;
+  el.className='card';
+  Object.assign(el.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:W+'px',height:H+'px',margin:'0',zIndex:60,pointerEvents:'none',boxShadow:'none',clipPath:`polygon(${t.map(p=>p[0]+'% '+p[1]+'%').join(',')})`,transformOrigin:mx+'% '+my+'%'});
+  document.body.appendChild(el);
+  const k=rnd(1.6,3);
+  fly(el,(mx-50)/100*W*k+rnd(-60,60),(my-50)/100*H*k-rnd(60,220),rnd(-540,540),rnd(1100,1700));
+ });
+ const cols=['#1673ff','#00c2ff','#ffffff','#0b4fb8','#7fd4ff'];
+ for(let k=0;k<46;k++){
+  const s=rnd(8,24),el=add({left:(cx-s/2)+'px',top:(cy-s/2)+'px',width:s+'px',height:s+'px',background:cols[k%5],zIndex:61,clipPath:k%2?'polygon(50% 0,100% 100%,0 100%)':'polygon(0 0,100% 20%,70% 100%,10% 80%)'});
+  const ang=rnd(0,Math.PI*2),dist=rnd(150,Math.max(W,H)*.9);
+  fly(el,Math.cos(ang)*dist,Math.sin(ang)*dist-rnd(40,160),rnd(-900,900),rnd(900,1500));
+ }
+ const fl=add({inset:'0',background:'#fff',zIndex:70});
+ fl.animate([{opacity:.85},{opacity:0}],{duration:380}).onfinish=()=>fl.remove();
+ const bl=add({left:(cx-60)+'px',top:(cy-60)+'px',width:'120px',height:'120px',borderRadius:'50%',background:'radial-gradient(circle,#fff 0,#00c2ff 40%,rgba(22,115,255,0) 70%)',zIndex:62});
+ bl.animate([{transform:'scale(.2)',opacity:1},{transform:'scale(7)',opacity:0}],{duration:600,easing:'ease-out'}).onfinish=()=>bl.remove();
+ const em=add({left:cx+'px',top:cy+'px',fontSize:'110px',lineHeight:'1',zIndex:63});em.textContent='💥';
+ em.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{offset:.3,transform:'translate(-50%,-50%) scale(1.3)',opacity:1},{transform:'translate(-50%,-50%) scale(1.6)',opacity:0}],{duration:700,easing:'ease-out'}).onfinish=()=>em.remove();
+ const wr=document.querySelector('.wrap');wr.classList.add('quake');setTimeout(()=>wr.classList.remove('quake'),520);
+ card.style.visibility='hidden';
+ setTimeout(()=>{card.style.visibility='';card.classList.add('reform');setTimeout(()=>card.classList.remove('reform'),600)},1300);
+}
+
+function wrongTry(v){
+ const q=Q[i],cut=q.cut||CUT;
+ tries++;lastTry=v;tEnd-=cut*1000;
+ sndBoo();
+ const fb=$('fb');fb.className='fb hidden';void fb.offsetWidth;fb.className='fb no';
+ fb.textContent='✖ WRONG! 제한시간 -'+cut+'초';
+ $('tpen').textContent='오답 시도 '+tries+'회 · -'+(cut*tries)+'초';
+ if(q.kind==='choice'){
+  picked=null;$('actBtn').disabled=true;
+  document.querySelectorAll('.opt').forEach(b=>{b.classList.remove('sel');if(b.textContent===v){b.classList.add('tried');b.disabled=true}});
+ }else if(!q.calc){const inp=$('inp');inp.focus();inp.select()}
+ tickFn();
+}
+
+function submit(to){
+ const q=Q[i];
+ if(!to){
+  const v=q.kind==='choice'?picked:$('inp').value.trim();
+  if(!(q.kind==='choice'?v===q.ans:q.ok(v))){wrongTry(v);return}
+ }
+ stopTimer();
+ if(to)boom();
+ let val,right;
+ if(q.kind==='choice'){val=picked;right=val===q.ans}
+ else{const inp=$('inp');val=inp.value.trim();right=q.ok(val);inp.disabled=true}
+ if(to){right=false;val=lastTry?lastTry+' (시간 초과)':'시간 초과 (미제출)'}
+ document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+ done=true;if(right)score+=20;
+ log.push({q,val,right,tries});
+ const fb=$('fb');fb.className='fb '+(right?'ok':'no');
+ fb.textContent=right?'✔ CORRECT! +20 PTS':(to?'⏰ TIME OVER!':'✖ WRONG!');
+ right?sndOk():(to?setTimeout(sndBoo,350):sndBoo());
+ const s=$('score');s.textContent='SCORE '+String(score).padStart(3,'0');s.classList.remove('score-pop');void s.offsetWidth;s.classList.add('score-pop');
+ $('prog').style.width=((i+1)/Q.length*100)+'%';
+ $('actBtn').textContent=i<Q.length-1?'다음 문제 ▶':'결과 보기 🏆';
+ $('actBtn').disabled=false;
+}
+
+function finish(){
+ const ok=log.filter(l=>l.right).length;
+ const G=[['D','포기하지 말고 한 판 더! 연습하면 반드시 늘어요.'],['D','시작이 반이에요! 개념을 다시 훑고 재도전해 보세요.'],['C','좋은 출발이에요! 조금만 더 다듬으면 고득점이 보여요.'],['B','훌륭해요! 파이썬 기초가 탄탄하게 잡혀 있어요.'],['A','대단해요! 거의 완벽한 실력입니다.'],['S','PERFECT! 오락실 최고 점수 달성, 당신은 파이썬 챔피언입니다! 🏆']];
+ const [g,m]=G[ok];
+ $('rScore').textContent=score;$('rGrade').textContent='RANK '+g;$('rMsg').textContent=m;
+ $('rOk').textContent='✔ 정답 '+ok+'개';$('rNo').textContent='✖ 오답 '+(Q.length-ok)+'개';
+ const r=$('review');r.innerHTML='';
+ const wrong=log.filter(l=>!l.right);
+ const h=document.createElement('p');h.className='q';h.textContent=wrong.length?'📋 오답 문제와 해설':'🎉 오답이 없어요! 해설을 확인해 보세요';r.appendChild(h);
+ log.forEach((l,k)=>{
+  const d=document.createElement('div');d.className='rv '+(l.right?'good':'bad');
+  const t=document.createElement('b');t.className='t';t.textContent=`Q${k+1}. ${l.right?'✔ 정답':'✖ 오답'}`;d.appendChild(t);
+  const p1=document.createElement('p');p1.textContent=l.q.text;d.appendChild(p1);
+  const p2=document.createElement('p');p2.textContent='내 답: '+l.val+(l.tries?' · 오답 시도 '+l.tries+'회':'');d.appendChild(p2);
+  const p3=document.createElement('p');p3.textContent='정답: '+l.q.ans;p3.style.fontWeight='700';d.appendChild(p3);
+  const p4=document.createElement('p');p4.textContent='해설: '+l.q.exp;d.appendChild(p4);
+  r.appendChild(d)});
+ show('result');sndEnd();
+}
+
+$('startBtn').onclick=()=>{ctx();i=0;score=0;log=[];$('score').textContent='SCORE 000';load();show('quiz')};
+$('actBtn').onclick=()=>{ctx();if(!done)submit();else if(i<Q.length-1){i++;load()}else finish()};
+$('retryBtn').onclick=()=>{i=0;score=0;log=[];$('score').textContent='SCORE 000';load();show('quiz')};
+</script>
+</body>
+</html>
